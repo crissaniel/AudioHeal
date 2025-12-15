@@ -1,0 +1,101 @@
+AudioHeal - Polynomial Interpolation-Based Audio Repair
+======================================================
+
+1. Requirements
+---------------
+- Python 3.8 or later
+- Required Python libraries:
+  - numpy
+  - scipy
+  - matplotlib
+
+To install required libraries, run:
+  pip install numpy scipy matplotlib
+
+
+2. Input Requirements
+---------------------
+- Input audio must be in WAV (.wav) format.
+- The user must specify the start and end time (in seconds) of the corrupted audio segment.
+- Time values are specified in seconds (e.g., 3.00 to 3.05 corresponds to 50 milliseconds).
+
+
+3. Running the Program
+----------------------
+
+Open a terminal in the Source Code folder and run:
+
+  python audioheal.py input.wav --gap_start <start_time> --gap_end <end_time>
+
+
+4. Repair Mode (Default)
+------------------------
+This mode is used to repair an existing corrupted audio segment.
+Do NOT include the --simulate flag.
+
+Example:
+  python audioheal.py corrupted.wav --gap_start 12.40 --gap_end 12.90 --method newton --order 3 --plot
+
+Output:
+- healed_output.wav (repaired audio file)
+
+
+5. Simulation Mode (Testing)
+-----------------------------
+Simulation mode is used to test the algorithm on clean audio by
+artificially creating a gap.
+
+Include the --simulate flag.
+
+Example:
+  python audioheal.py clean.wav --gap_start 2.00 --gap_end 2.20 --simulate --method lagrange --order 3 --plot
+
+Output:
+- damaged.wav (artificially corrupted audio)
+- healed_output.wav (reconstructed audio)
+
+
+6. Interpolation Methods
+------------------------
+The program supports the following interpolation methods:
+
+- linear   : First-degree (linear) interpolation
+- lagrange : Lagrange polynomial interpolation
+- newton   : Newton’s Divided Difference interpolation
+
+The polynomial order can be specified using --order.
+Example:
+  --order 1  -> Linear
+  --order 3  -> Cubic interpolation
+
+
+7. Context Window
+-----------------
+The context window determines how many valid samples around the gap
+are used for interpolation.
+
+- If --context_ms is not specified, it is automatically computed
+  as three (3) times the gap duration.
+- This adaptive behavior improves numerical stability.
+
+Example:
+  --context_ms 15.0
+
+
+8. Plotting
+-----------
+Use the --plot flag to display waveform plots showing:
+- Original audio
+- Damaged audio (simulation mode only)
+- Healed audio
+- Highlighted gap region
+
+
+9. Notes and Limitations
+------------------------
+- The reconstructed audio is a numerical approximation and does not
+  perfectly restore original sound content.
+- The program works best for short gaps (milliseconds range).
+- Only WAV files are supported.
+- Very small gaps (microsecond range) may not be noticeable due to
+  audio sampling rate limitations.
