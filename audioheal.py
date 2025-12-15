@@ -346,8 +346,9 @@ def main():
                         help="Interpolation method (default: lagrange)")
     parser.add_argument("--order", type=int, default=3, 
                         help="Polynomial order/degree. 1=linear, 2=quadratic, 3=cubic, etc. (default: 3)")
-    parser.add_argument("--context_ms", type=float, default=10.0, 
-                        help="Context window in milliseconds around gap to pick anchor points (default: 10ms)")
+    parser.add_argument("--context_ms", type=float, default=None, 
+                        help="Context window in milliseconds around gap to pick anchor points. "
+                             "If not specified, auto-calculated as 3x the gap duration (recommended).")
     parser.add_argument("--plot", action="store_true", help="Show before/after waveform plot.")
     args = parser.parse_args()
 
@@ -369,9 +370,16 @@ def main():
     gap = Gap(start_idx=start_idx, end_idx=end_idx)
     gap_duration_ms = (end_idx - start_idx) / fs * 1000
 
-    print(f"Gap: {args.gap_start}s to {args.gap_end}s ({gap_duration_ms:.2f}ms)")
+    # Auto-calculate context if not provided
+    if args.context_ms is None:
+        # Use 3x gap duration as context (good rule of thumb)
+        # Ensures anchor points are close enough to capture local behavior
+        args.context_ms = max(0.1, gap_duration_ms * 3.0)
+        print(f"Auto-calculated context: {args.context_ms:.3f}ms (3x gap duration)")
+    
+    print(f"Gap: {args.gap_start}s to {args.gap_end}s ({gap_duration_ms:.3f}ms)")
     print(f"Sample indices: [{start_idx}, {end_idx})")
-    print(f"Method: {args.method}, Order: {args.order}, Context: {args.context_ms}ms")
+    print(f"Method: {args.method}, Order: {args.order}, Context: {args.context_ms:.3f}ms")
 
     # Handle simulation mode vs real repair mode
     if args.simulate:
